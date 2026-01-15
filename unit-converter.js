@@ -210,9 +210,129 @@ function loadTemperatureConverter() {
     const converterSection = document.getElementById('converter-section');
     converterSection.innerHTML = `
         <h2>Temperature Converter</h2>
-        <p>Convert between different temperature units (Celsius, Fahrenheit, Kelvin)</p>
-        <p><em>Coming soon...</em></p>
+        <div class="converter-container">
+            <div class="converter-box">
+                <div class="input-group">
+                    <label for="temp-input">Enter Value:</label>
+                    <input type="number" id="temp-input" placeholder="Enter temperature" step="0.01">
+                </div>
+                <div class="units-row">
+                    <div class="unit-group">
+                        <label for="from-temp-unit">From:</label>
+                        <select id="from-temp-unit">
+                            <option value="celsius" selected>Celsius (°C)</option>
+                            <option value="fahrenheit">Fahrenheit (°F)</option>
+                            <option value="kelvin">Kelvin (K)</option>
+                        </select>
+                    </div>
+                    <div class="unit-group">
+                        <label for="to-temp-unit">To:</label>
+                        <select id="to-temp-unit">
+                            <option value="celsius" selected>Celsius (°C)</option>
+                            <option value="fahrenheit">Fahrenheit (°F)</option>
+                            <option value="kelvin">Kelvin (K)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="result-box">
+                <p class="result-label">Result:</p>
+                <p class="result-value" id="temp-result">0</p>
+            </div>
+            <button class="btn-clear" onclick="clearTemperatureConverter()">Clear</button>
+        </div>
     `;
+    
+    // Set up event listeners for the converter
+    setupTemperatureConverter();
+}
+
+/**
+ * Setup event listeners for temperature converter
+ */
+function setupTemperatureConverter() {
+    const inputField = document.getElementById('temp-input');
+    const fromUnit = document.getElementById('from-temp-unit');
+    const toUnit = document.getElementById('to-temp-unit');
+    
+    // Add event listeners for real-time conversion
+    inputField.addEventListener('input', convertTemperature);
+    fromUnit.addEventListener('change', convertTemperature);
+    toUnit.addEventListener('change', convertTemperature);
+    
+    // Initial conversion
+    convertTemperature();
+}
+
+/**
+ * Convert temperature units
+ * All conversions go through Celsius as base unit
+ */
+function convertTemperature() {
+    const input = document.getElementById('temp-input').value;
+    const fromUnit = document.getElementById('from-temp-unit').value;
+    const toUnit = document.getElementById('to-temp-unit').value;
+    const resultElement = document.getElementById('temp-result');
+    
+    if (!input || input === '') {
+        resultElement.textContent = '0';
+        return;
+    }
+    
+    const value = parseFloat(input);
+    
+    // Convert input to Celsius first
+    let celsius;
+    switch(fromUnit) {
+        case 'celsius':
+            celsius = value;
+            break;
+        case 'fahrenheit':
+            celsius = (value - 32) * 5/9;
+            break;
+        case 'kelvin':
+            celsius = value - 273.15;
+            break;
+        default:
+            celsius = value;
+    }
+    
+    // Convert from Celsius to target unit
+    let result;
+    switch(toUnit) {
+        case 'celsius':
+            result = celsius;
+            break;
+        case 'fahrenheit':
+            result = (celsius * 9/5) + 32;
+            break;
+        case 'kelvin':
+            result = celsius + 273.15;
+            break;
+        default:
+            result = celsius;
+    }
+    
+    // Format result: round to 2 decimals
+    const rounded = Math.round(result * 100) / 100;
+    
+    // If it's a whole number, display without decimals
+    if (rounded === Math.floor(rounded)) {
+        resultElement.textContent = Math.floor(rounded).toString();
+    } else {
+        // Otherwise display with 2 decimal places
+        resultElement.textContent = rounded.toFixed(2);
+    }
+}
+
+/**
+ * Clear temperature converter form
+ */
+function clearTemperatureConverter() {
+    document.getElementById('temp-input').value = '';
+    document.getElementById('from-temp-unit').value = 'celsius';
+    document.getElementById('to-temp-unit').value = 'celsius';
+    document.getElementById('temp-result').textContent = '0';
 }
 
 /**
